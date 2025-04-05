@@ -1,0 +1,45 @@
+1. buat script
+:local tgToken "1385076325:AAHor2sElCL0YpnFEGbTpAVl8pa9FqfqAGs"
+:local chatID "-463630818"
+:local iface "ETHER-5_BYPASS"
+:local fileName ("status_" . $iface . ".txt")
+:local identity [/system identity get name]
+
+# Temukan interface ID
+:local ifaceID [/interface find where name=$iface]
+:if ([:len $ifaceID] = 0) do={
+    :log error ("Interface " . $iface . " not found!")
+    :error ("Interface " . $iface . " not found!")
+}
+
+# Ambil status interface sekarang
+:local status [/interface get $ifaceID running]
+:local currentStatus ""
+:if ($status) do={
+    :set currentStatus "UP"
+} else={
+    :set currentStatus "DOWN"
+}
+
+# Cek status terakhir dari file
+:local lastStatus "UNKNOWN"
+:local fileID [/file find name=$fileName]
+:if ([:len $fileID] > 0) do={
+    :set lastStatus [/file get $fileID contents]
+}
+
+# Jika status berubah, kirim notifikasi dan update file
+:if ($currentStatus != $lastStatus) do={
+
+    :local message ("Device: " . $identity . "%0AInterface: " . $iface . "%0AStatus: " . $currentStatus)
+
+    /tool fetch url=("https://api.telegram.org/bot" . $tgToken . "/sendMessage?chat_id=" . $chatID . "&text=" . $message) keep-result=no
+
+    # Hapus file lama dan buat ulang
+    :if ([:len $fileID] > 0) do={
+        /file remove $fileID
+    }
+    /file print file=$fileName
+    /file set [/file find name=$fileName] contents=$currentStatus
+}
+2. buat scheduler
