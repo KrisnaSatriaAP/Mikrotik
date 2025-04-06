@@ -1,6 +1,6 @@
 1. buat script
-:local tgToken "1385076325:AAHor2sElCL0YpnFEGbTpAVl8pa9FqfqAGs"
-:local chatID "-463630818"
+:local tgToken "13850....:...."
+:local chatID "-463......."
 :local iface "ETHER-5_BYPASS"
 :local fileName ("status_" . $iface . ".txt")
 :local identity [/system identity get name]
