@@ -1,0 +1,17 @@
+/interface monitor-traffic interface=ether1
+hasil :
+                         ;;;     BW 39M
+                       name:     ether1
+      rx-packets-per-second:        182
+         rx-bits-per-second: 1664.1kbps
+   fp-rx-packets-per-second:        213
+      fp-rx-bits-per-second: 1958.5kbps
+        rx-drops-per-second:          0
+       rx-errors-per-second:          0
+      tx-packets-per-second:        133
+         tx-bits-per-second:  171.5kbps
+   fp-tx-packets-per-second:          0
+      fp-tx-bits-per-second:       0bps
+        tx-drops-per-second:          0
+  tx-queue-drops-per-second:          0
+       tx-errors-per-second:          0
