@@ -1,0 +1,8 @@
+masukkan scrip ke IP>DHCP Server>Script
+
+:local queueName "USERS_DHCP_$leaseActMAC"; 
+:if ($leaseBound = "1") do={ 
+/queue simple add name=$queueName target=($leaseActIP . "/32") max-limit=27M/27M parent=TOTAL_USERS_DHCP_31 comment=[/ip dhcp-server lease get [find where active-mac-address=$leaseActMAC && active-address=$leaseActIP] host-name]; 
+} else={ 
+/queue simple remove $queueName 
+}
