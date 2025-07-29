@@ -1,0 +1,57 @@
+#buat scheduler supaya jalan otomatis lalu masukkan scrip :
+
+# Automated backup to external FTP Server
+# ROS 7
+
+# FTP configuration
+:local ftphost "10.255.255.1"
+:local ftpuser "admin"
+:local ftppassword "Cvb@2800"
+:local ftppath "usb1_1/backup/apricot/"
+:local ftpport 21
+
+# Get the system identity
+:local identity [/system identity get name]
+
+# Get the current date and time for filename
+:local date [/system clock get date]
+:local time [/system clock get time]
+
+# Format date and time for filename
+:local dateFormatted ([:pick $date 8 10] . "-" . [:pick $date 5 7] . "-" . [:pick $date 0 4])
+:local timeFormatted ([:pick $time 0 2] . "-" . [:pick $time 3 5])
+
+# File name for system backup
+:local fname1 ("Backup_" . $identity . "_Date_" . $dateFormatted . "_Time_" . $timeFormatted . ".backup")
+# File name for config export
+:local fname2 ("Backup_" . $identity . "_Date_" . $dateFormatted . "_Time_" . $timeFormatted . ".rsc")
+
+# Backup the data
+:log warning message="Starting automatic backup script to the FTP server."
+/system backup save name=$fname1
+:log warning message="System backup generation finished."
+:delay 10s
+/export compact file=$fname2
+:log warning message="Export file generation finished."
+:delay 10s
+
+# Upload the system backup
+:log warning message="Uploading backup file to the FTP server."
+/tool fetch address="$ftphost" port=$ftpport src-path=$fname1 user="$ftpuser" mode=ftp password="$ftppassword" dst-path="$ftppath/$fname1" upload=yes
+:delay 10s
+
+# Upload the config export
+:log warning message="Uploading export file to the FTP server."
+/tool fetch address="$ftphost" port=$ftpport src-path=$fname2 user="$ftpuser" mode=ftp password="$ftppassword" dst-path="$ftppath/$fname2" upload=yes
+:delay 3s
+
+:log warning message="Backup process has been successfully completed."
+
+#-----------sampai sini saja------------------
+#-----di bawah ini tidak perlu di masukkan----
+
+#:local ftphost "10.255.255.1" (ip ftp server)
+#:local ftpuser "admin" (username)
+#:local ftppassword "Cvb@2800" (password)
+#:local ftppath "usb1_1/backup/apricot/" (lokasi file)
+#:local ftpport 21 (port ftp)
