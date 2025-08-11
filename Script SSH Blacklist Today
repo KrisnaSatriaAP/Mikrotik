@@ -1,0 +1,26 @@
+/system script
+add name="SSH_Blacklist_Today" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local todayDate [/system clock get date];\
+:local attempts {};\
+:local logIDs [/log find message~\"login failure\"];\
+\
+:foreach id in=\$logIDs do={\
+    :local date [/log get \$id date];\
+    :if (\$date = \$todayDate && ([:find [/log get \$id message] \"via ssh\"] != nil)) do={\
+        :local msg [/log get \$id message];\
+        :local start ([:find \$msg \"from \"] + 5);\
+        :local end ([:find \$msg \" via ssh\"]);\
+        :if (\$start < \$end) do={\
+            :local ip [:pick \$msg \$start \$end];\
+            :set attempts (\$attempts, \$ip, ([:tonum ([:pick (\$attempts, \$ip) 0 [:len (\$attempts, \$ip)]] + 1)]));\
+        };\
+    };\
+};\
+\
+:foreach ip,count in=\$attempts do={\
+    :if (\$count > 3) do={\
+        :if ([/ip firewall address-list find list=BLACKLIST-SSH address=\$ip] = \"\") do={\
+            /ip firewall address-list add list=BLACKLIST-SSH address=\$ip comment=\"Permanent SSH Block (>3 fails today)\";\
+            /log warning (\"[BLACKLIST-SSH] Permanently blocked SSH attacker: \$ip (fails: \$count)\");\
+        };\
+    };\
+}"
