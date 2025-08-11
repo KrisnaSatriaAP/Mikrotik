@@ -1,0 +1,13 @@
+buat script masukkan :
+
+:foreach i in=[/log find where topics~"l2tp" and message~"authentication failed"] do={
+    :local msg [/log get $i message]
+    :if ($msg ~ "<" && $msg ~ ">") do={
+        :local ip [:pick $msg ([:find $msg "<"] + 1) [:find $msg ">"]]
+        :if ([:len $ip] > 6) do={
+            :if ([:len [/ip firewall address-list find list=black_list_l2tp address=$ip]] = 0) do={
+                /ip firewall address-list add list=black_list_l2tp address=$ip comment="Blocked L2TP auth failed"
+            }
+        }
+    }
+}
