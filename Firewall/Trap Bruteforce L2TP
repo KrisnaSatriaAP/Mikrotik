@@ -1,0 +1,8 @@
+# Mikrotik Firewall Trap Incoming L2TP Protocol
+
+/ip firewall filter
+add action=drop chain=input comment="Drop L2TP" disabled=no dst-port=1701 protocol=udp src-address-list=BLACKLIST_BRUTEFORCE_L2TP connection-state=invalid
+add action=add-src-to-address-list address-list=BLACKLIST_BRUTEFORCE_L2TP address-list-timeout=1d chain=input comment="Blacklist L2TP" disabled=no dst-port=1701 protocol=udp src-address-list=BRUTEFORCE_L2TP_STAGE_3 connection-state=invalid
+add action=add-src-to-address-list address-list=BRUTEFORCE_L2TP_STAGE_3 address-list-timeout=10m chain=input comment="Stage 3 L2TP" disabled=no dst-port=1701 protocol=udp src-address-list=BRUTEFORCE_L2TP_STAGE_2 connection-state=invalid
+add action=add-src-to-address-list address-list=BRUTEFORCE_L2TP_STAGE_2 address-list-timeout=5m chain=input comment="Stage 2 L2TP" disabled=no dst-port=1701 protocol=udp src-address-list=BRUTEFORCE_L2TP_STAGE_1 connection-state=invalid
+add action=add-src-to-address-list address-list=BRUTEFORCE_L2TP_STAGE_1 address-list-timeout=3m chain=input comment="Stage 1 L2TP" disabled=no dst-port=1701 protocol=udp connection-state=invalid
