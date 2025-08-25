@@ -1,0 +1,8 @@
+# Mikrotik Firewall Trap Incoming SSH Protocol
+
+/ip firewall filter
+add action=drop chain=input comment="Drop Bruteforce SSH" disabled=no dst-port=22 protocol=tcp src-address-list=BLACKLIST_BRUTEFORCE_SSH
+add action=add-src-to-address-list address-list=BLACKLIST_BRUTEFORCE_SSH address-list-timeout=1d chain=input comment="Blacklist Buteforce SSH" disabled=no dst-port=22 protocol=tcp src-address-list=BRUTEFORCE_SSH_STAGE_3 connection-state=!established,related
+add action=add-src-to-address-list address-list=BRUTEFORCE_SSH_STAGE_3 address-list-timeout=10m chain=input comment="Bruteforce SSH Stage 3" disabled=no dst-port=22 protocol=tcp src-address-list=BRUTEFORCE_SSH_STAGE_2 connection-state=!established,related
+add action=add-src-to-address-list address-list=BRUTEFORCE_SSH_STAGE_2 address-list-timeout=1m chain=input comment="Bruteforce SSH Stage 2" disabled=no dst-port=22 protocol=tcp src-address-list=BRUTEFORCE_SSH_STAGE_1 connection-state=!established,related
+add action=add-src-to-address-list address-list=BRUTEFORCE_SSH_STAGE_1 address-list-timeout=1m chain=input comment="Bruteforce SSH Stage 1" disabled=no dst-port=22 protocol=tcp connection-state=invalid,new
