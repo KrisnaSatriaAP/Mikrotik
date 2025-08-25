@@ -1,4 +1,4 @@
 # Mikrotik Firewall Allow HTTP Protocol
 
 /ip firewall filter
-add action=accept chain=input comment="Allow HTTP" disabled=no dst-port=80 protocol=tcp
+add action=accept chain=input comment="Allow HTTP Input" disabled=no dst-port=80 protocol=tcp
