@@ -3,7 +3,7 @@
 
 /ip firewall filter
 add action=drop chain=input comment="Drop Bruteforce HTTP" disabled=no dst-port=80 protocol=tcp src-address-list=BLACKLIST_BRUTEFORCE_HTTP connection-state=invalid
-add action=add-src-to-address-list address-list=BLACKLIST_BRUTEFORCE_HTTP address-list-timeout=7d chain=input comment="Blacklist Bruteforce HTTP" disabled=no dst-port=80 protocol=tcp src-address-list=BRUTEFORCE_STAGE_3 connection-state=!related,established
-add action=add-src-to-address-list address-list=BRUTEFORCE_STAGE_3 address-list-timeout=10m chain=input comment="Bruteforce HTTP Stage 3" disabled=no dst-port=80 protocol=tcp src-address-list=BRUTEFORCE_STAGE_2 connection-state=!related,established
-add action=add-src-to-address-list address-list=BRUTEFORCE_STAGE_2 address-list-timeout=5m chain=input comment="Bruteforce HTTP Stage 2" disabled=no dst-port=80 protocol=tcp src-address-list=BRUTEFORCE_STAGE_1 connection-state=!related,established
-add action=add-src-to-address-list address-list=BRUTEFORCE_STAGE_1 address-list-timeout=3m chain=input comment="Bruteforce HTTP Stage 1" disabled=no dst-port=80 protocol=tcp connection-state=invalid,new
+add action=add-src-to-address-list address-list=BLACKLIST_BRUTEFORCE_HTTP address-list-timeout=7d chain=input comment="Blacklist Bruteforce HTTP" disabled=no dst-port=80 protocol=tcp src-address-list=BRUTEFORCE_HTTP_STAGE_3 connection-state=!related,established
+add action=add-src-to-address-list address-list=BRUTEFORCE_HTTP_STAGE_3 address-list-timeout=10m chain=input comment="Bruteforce HTTP Stage 3" disabled=no dst-port=80 protocol=tcp src-address-list=BRUTEFORCE_HTTP_STAGE_2 connection-state=!related,established
+add action=add-src-to-address-list address-list=BRUTEFORCE_HTTP_STAGE_2 address-list-timeout=5m chain=input comment="Bruteforce HTTP Stage 2" disabled=no dst-port=80 protocol=tcp src-address-list=BRUTEFORCE_HTTP_STAGE_1 connection-state=!related,established
+add action=add-src-to-address-list address-list=BRUTEFORCE_HTTP_STAGE_1 address-list-timeout=3m chain=input comment="Bruteforce HTTP Stage 1" disabled=no dst-port=80 protocol=tcp connection-state=invalid,new
