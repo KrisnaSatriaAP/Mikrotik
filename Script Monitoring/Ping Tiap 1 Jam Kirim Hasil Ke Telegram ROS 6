@@ -1,42 +1,63 @@
-1. Buat script ping_router_1
+1. Buat script 
+(owner dan policy biarkan saja, default)
+name=ping_router
+source masukkan :
+# ==============================
+# Script: Ping Report to Telegram (ROS v6 friendly)
+# ==============================
 
-Masuk ke New Terminal lalu ketik:
-/system script add name=ping_router_1 policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-# ==============================\r\
-# Script: Ping Report to Telegram (ROS v6 friendly)\r\
-# ==============================\r\
-\r\
-:local target \"10.210.100.1\"\r\
-:local name \"Router 1\"\r\
-\r\
-:local botToken \"612507.....:AAG2_.....\"\r\
-:local chatID \"-4106......\"\r\
-\r\
-:local tanggal [/system clock get date]\r\
-:local waktu [/system clock get time]\r\
-\r\
-:local sent 100\r\
-:local received [/ping \$target count=\$sent]\r\
-:local lost (\$sent - \$received)\r\
-:local lossPercent (\$lost * 100 / \$sent)\r\
-\r\
-:local msg (\"PING REPORT\\r\\n\" . \\\r\
-            \"-----------------------\\r\\n\" . \\\r\
-            \"Host     : \$target\\r\\n\" . \\\r\
-            \"Name     : \$name\\r\\n\" . \\\r\
-            \"Date     : \$tanggal\\r\\n\" . \\\r\
-            \"Time     : \$waktu\\r\\n\\r\\n\" . \\\r\
-            \"Result   : Sent=\$sent | Received=\$received | Loss=\$lossPercent%\\r\\n\" . \\\r\
-            \"-----------------------\")\r\
-\r\
-/tool fetch url=(\"https://api.telegram.org/bot\$botToken/sendMessage\") \\\r\
-    http-method=post \\\r\
-    http-data=(\"chat_id=\$chatID&text=\$msg&parse_mode=Markdown\") \\\r\
-    keep-result=no"
+# IP/host yang akan diping
+:local target "192.168.1.2"
+
+# Nama/identitas host untuk memudahkan laporan
+:local name "Router"
+
+# Token bot Telegram (buat lewat BotFather)
+:local botToken "6125......:AAG2_VY6W.........................."
+
+# Chat ID (ID group/channel/DM Telegram tujuan pesan)
+:local chatID "-4106......"
+
+# Ambil tanggal dan waktu dari system clock
+:local tanggal [/system clock get date]
+:local waktu [/system clock get time]
+
+# Jumlah paket yang akan dikirim
+:local sent 100
+
+# Jalankan ping dan simpan jumlah paket yang diterima
+:local received [/ping $target count=$sent]
+
+# Hitung paket yang hilang
+:local lost ($sent - $received)
+
+# Hitung persentase packet loss
+:local lossPercent ($lost * 100 / $sent)
+
+# Format pesan yang di kirim ke telegram
+:local msg ("PING REPORT\r\n" . \
+            "-----------------------\r\n" . \
+            "Host     : $target\r\n" . \
+            "Name     : $name\r\n" . \
+            "Date     : $tanggal\r\n" . \
+            "Time     : $waktu\r\n\r\n" . \
+            "Result   : Sent=$sent | Received=$received | Loss=$lossPercent%\r\n" . \
+            "-----------------------")
+
+# Kirim pesan ke Telegram via API
+/tool fetch url=("https://api.telegram.org/bot$botToken/sendMessage") \
+    http-method=post \
+    http-data=("chat_id=$chatID&text=$msg&parse_mode=Markdown") \
+    keep-result=no
 
 
-2. Buat schedule jalan tiap 1 jam
-/system scheduler add name=ping_router_1 \
-    interval=1h \
-    on-event=ping_router_1 \
-    comment="ping_router_1_tiap_1_jam"
+
+
+1. Buat schedule untuk di jalakan setiap 1 jam
+name=ping_router
+start date=di isi tanggal (atau biarkan default)
+start time=di isi waktu (atau biarkan default)
+interval=01:00:00 (1 jam)
+on event masukkan=ping_router (nama script yang di buat tadi)
+
+
