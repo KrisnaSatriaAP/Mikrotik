@@ -9,8 +9,8 @@ Masuk ke New Terminal lalu ketik:
 :local target \"10.210.100.1\"\r\
 :local name \"Router 1\"\r\
 \r\
-:local botToken \"6125079411:AAG2_HE6Wfr1Sa96QRpNVyki3W67tvpJF11\"\r\
-:local chatID \"-4106937562\"\r\
+:local botToken \"612507.....:AAG2_.....\"\r\
+:local chatID \"-4106......\"\r\
 \r\
 :local tanggal [/system clock get date]\r\
 :local waktu [/system clock get time]\r\
