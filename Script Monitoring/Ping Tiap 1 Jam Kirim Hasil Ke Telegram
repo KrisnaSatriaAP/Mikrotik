@@ -1,0 +1,42 @@
+1. Buat script ping_router_1
+
+Masuk ke New Terminal lalu ketik:
+/system script add name=ping_router_1 policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+# ==============================\r\
+# Script: Ping Report to Telegram (ROS v6 friendly)\r\
+# ==============================\r\
+\r\
+:local target \"10.210.100.1\"\r\
+:local name \"Router 1\"\r\
+\r\
+:local botToken \"6125079411:AAG2_HE6Wfr1Sa96QRpNVyki3W67tvpJF11\"\r\
+:local chatID \"-4106937562\"\r\
+\r\
+:local tanggal [/system clock get date]\r\
+:local waktu [/system clock get time]\r\
+\r\
+:local sent 100\r\
+:local received [/ping \$target count=\$sent]\r\
+:local lost (\$sent - \$received)\r\
+:local lossPercent (\$lost * 100 / \$sent)\r\
+\r\
+:local msg (\"PING REPORT\\r\\n\" . \\\r\
+            \"-----------------------\\r\\n\" . \\\r\
+            \"Host     : \$target\\r\\n\" . \\\r\
+            \"Name     : \$name\\r\\n\" . \\\r\
+            \"Date     : \$tanggal\\r\\n\" . \\\r\
+            \"Time     : \$waktu\\r\\n\\r\\n\" . \\\r\
+            \"Result   : Sent=\$sent | Received=\$received | Loss=\$lossPercent%\\r\\n\" . \\\r\
+            \"-----------------------\")\r\
+\r\
+/tool fetch url=(\"https://api.telegram.org/bot\$botToken/sendMessage\") \\\r\
+    http-method=post \\\r\
+    http-data=(\"chat_id=\$chatID&text=\$msg&parse_mode=Markdown\") \\\r\
+    keep-result=no"
+
+
+2. Buat schedule jalan tiap 1 jam
+/system scheduler add name=ping_router_1 \
+    interval=1h \
+    on-event=ping_router_1 \
+    comment="ping_router_1_tiap_1_jam"
