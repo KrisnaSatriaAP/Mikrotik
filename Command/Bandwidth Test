@@ -1,0 +1,55 @@
+address=ip client/tujuan
+protocol=tcp/udp
+duration=durasi (kalau mau terus jalan bisa di skip) (1d=1 hari, 1h=1 jam, 10m=10 menit, 30s= 30 detik)
+direction=both (tx rx bersamaan) receive (terima saja/downlaod/rx) transmit (kirim saja/upload/tx)
+user=username client/router tujuan
+password=password client/router tujuan
+
+
+TCP
+Dengan Durasi
+
+both
+tool bandwidth-test address=192.168.1.1 protocol=tcp duration=10m direction=both user=admin password=admin
+
+receive
+tool bandwidth-test address=192.168.1.1 protocol=tcp duration=10m direction=receive user=admin password=admin
+
+transmit
+tool bandwidth-test address=192.168.1.1 protocol=tcp duration=10m direction=receive user=admin password=admin
+
+Tanpa Durasi
+
+both
+tool bandwidth-test address=192.168.1.1 protocol=tcp duration=10m direction=both user=admin password=admin
+
+receive
+tool bandwidth-test address=192.168.1.1 protocol=tcp direction=receive user=admin password=admin
+
+transmit
+tool bandwidth-test address=192.168.1.1 protocol=tcp direction=receive user=admin password=admin
+
+
+
+UDP
+Dengan Durasi
+
+both
+tool bandwidth-test address=192.168.1.1 protocol=udp duration=10m direction=both user=admin password=admin
+
+receive
+tool bandwidth-test address=192.168.1.1 protocol=udp duration=10m direction=receive user=admin password=admin
+
+transmit
+tool bandwidth-test address=192.168.1.1 protocol=udp duration=10m direction=receive user=admin password=admin
+
+Tanpa Durasi
+
+both
+tool bandwidth-test address=192.168.1.1 protocol=udp duration=10m direction=both user=admin password=admin
+
+receive
+tool bandwidth-test address=192.168.1.1 protocol=udp direction=receive user=admin password=admin
+
+transmit
+tool bandwidth-test address=192.168.1.1 protocol=udp direction=receive user=admin password=admin
