@@ -1,0 +1,17 @@
+#save mode dulu, kalau aman bisa disable save mode (menghindari salah konfig)
+#src-address=10.181.0.0/16 (ganti dengan ip pppoe pelanggan)
+
+/ip firewall address-list
+add address=177.91.52.0 list=DST_BOTNET_TOTOLINK
+add address=45.181.228.0 list=DST_BOTNET_TOTOLINK
+add address=177.66.192.0 list=DST_BOTNET_TOTOLINK
+add address=167.249.168.0 list=DST_BOTNET_TOTOLINK
+
+/ip firewall filter
+add action=add-src-to-address-list address-list=TERINVEKSI_BOTNET_TOTOLINK \
+    address-list-timeout=8h chain=input comment=TERINVEKSI_BOTNET_TOTOLINK \
+    dst-address-list=DST_BOTNET_TOTOLINK dst-port=29192,30339,44506,52026 \
+    protocol=udp src-address=10.181.0.0/16
+add action=drop chain=input comment=BLOCK_BOTNET_TOTOLINK dst-port=\
+    29192,30339,44506,52026 protocol=udp src-address-list=\
+    TERINVEKSI_BOTNET_TOTOLINK
