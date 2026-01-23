@@ -1,5 +1,7 @@
 #jika radius server down dan ada log pppoe error authentication failed akan membuat secret dengan username sesuai user yg eror, password 5758, profile USERS_PPPOE_BYPASS, limit 20256K
 
+
+#ROS7   ---------------------------------------------------------------------------------
 /ip pool
 add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
     10.183.247.10-10.183.247.87,10.183.247.89-10.183.254.254
@@ -41,6 +43,60 @@ add comment=ENABLE_JIKA_RADIUS_ERROR disabled=yes interval=10s name=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
     start-date=2026-01-23 start-time=15:13:56
 
+/tool netwatch
+add comment=RADIUS_SERVER down-script="/system scheduler enable [find name=\"AUT\
+    O_GENERATE_PPPOE_FAILED\"]\r\
+    \n:delay 3s\r\
+    \n:log warning (\"SYSTEM: Auto enable scheduler AUTO_GENERATE_PPPOE_FAILED\"\
+    )" host=192.168.1.1 interval=1m3s up-script="/system scheduler disable [f\
+    ind name=\"AUTO_GENERATE_PPPOE_FAILED\"]\r\
+    \n:delay 3s\r\
+    \n:log warning (\"SYSTEM: Auto disable scheduler AUTO_GENERATE_PPPOE_FAILED\
+    \")"
+
+#ROS6   ---------------------------------------------------------------------------------
+/ip pool
+add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
+    10.183.247.10-10.183.247.87,10.183.247.89-10.183.254.254
+
+/ppp profile
+add insert-queue-before=bottom local-address=10.183.247.88 name=\
+    USERS_PPPOE_BYPASS only-one=yes rate-limit=\
+    "20256K/20256K 0/0 0/0 0/0 8 0/0" remote-address=USERS_PPPOE_BYPASS
+	
+/system scheduler
+add comment=ENABLE_JIKA_RADIUS_ERROR disabled=yes interval=10s name=\
+    AUTO_GENERATE_PPPOE_FAILED on-event=":foreach i in=[/log find where buffer=m\
+    emory and topics~\"pppoe\" and topics~\"ppp\" and topics~\"error\" and messa\
+    ge~\"authentication failed\"] do={\r\
+    \n\r\
+    \n    :local rawMsg [/log get \$i message];\r\
+    \n\r\
+    \n    :local userStart [:find \$rawMsg \"user \"];\r\
+    \n    :local userEnd [:find \$rawMsg \" authentication failed\"];\r\
+    \n\r\
+    \n    :if ((\$userStart != -1) and (\$userEnd != -1) and (\$userEnd > \$user\
+    Start)) do={\r\
+    \n\r\
+    \n        :local userName [:pick \$rawMsg (\$userStart + 5) \$userEnd];\r\
+    \n\r\
+    \n        :if ([:len \$userName] > 2) do={\r\
+    \n\r\
+    \n            :if ([:len [/ppp secret find where name=\$userName]] = 0) do={\
+    \r\
+    \n\r\
+    \n                /ppp secret add name=\$userName password=5758 profile=USER\
+    S_PPPOE_BYPASS service=pppoe;\r\
+    \n                :log warning (\"SYSTEM: Auto created user \" . \$userName)\
+    ;\r\
+    \n            }\r\
+    \n        }\r\
+    \n    }\r\
+    \n}" policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    start-date=jan/23/2026 start-time=18:24:58
+
+	
 /tool netwatch
 add comment=RADIUS_SERVER down-script="/system scheduler enable [find name=\"AUT\
     O_GENERATE_PPPOE_FAILED\"]\r\
