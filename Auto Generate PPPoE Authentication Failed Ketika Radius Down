@@ -1,4 +1,4 @@
-#jika ada log pppoe error authentication failed akan membuat secret dengan username sesuai user yg eror, password 5758, profile USERS_PPPOE_BYPASS, limit 20256K
+#jika radius server down dan ada log pppoe error authentication failed akan membuat secret dengan username sesuai user yg eror, password 5758, profile USERS_PPPOE_BYPASS, limit 20256K
 
 /ip pool
 add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
@@ -40,3 +40,14 @@ add comment=ENABLE_JIKA_RADIUS_ERROR disabled=yes interval=10s name=\
     \n}" policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
     start-date=2026-01-23 start-time=15:13:56
+
+/tool netwatch
+add comment=RADIUS_SERVER down-script="/system scheduler enable [find name=\"AUT\
+    O_GENERATE_PPPOE_FAILED\"]\r\
+    \n:delay 3s\r\
+    \n:log warning (\"SYSTEM: Auto enable scheduler AUTO_GENERATE_PPPOE_FAILED\"\
+    )" host=192.168.1.1 interval=1m3s up-script="/system scheduler disable [f\
+    ind name=\"AUTO_GENERATE_PPPOE_FAILED\"]\r\
+    \n:delay 3s\r\
+    \n:log warning (\"SYSTEM: Auto disable scheduler AUTO_GENERATE_PPPOE_FAILED\
+    \")"
