@@ -1,0 +1,42 @@
+#jika ada log pppoe error authentication failed akan membuat secret dengan username sesuai user yg eror, password 5758, profile USERS_PPPOE_BYPASS, limit 20256K
+
+/ip pool
+add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
+    10.183.247.10-10.183.247.87,10.183.247.89-10.183.254.254
+
+/ppp profile
+add insert-queue-before=bottom local-address=10.183.247.88 name=\
+    USERS_PPPOE_BYPASS only-one=yes rate-limit=\
+    "20256K/20256K 0/0 0/0 0/0 8 0/0" remote-address=USERS_PPPOE_BYPASS
+	
+/system scheduler
+add comment=ENABLE_JIKA_RADIUS_ERROR disabled=yes interval=10s name=\
+    AUTO_GENERATE_PPPOE_FAILED on-event=":foreach i in=[/log find where buffer=\
+    memory and topics~\"pppoe\" and topics~\"ppp\" and topics~\"error\" and mes\
+    sage~\"authentication failed\"] do={\
+    \n\
+    \n    :local rawMsg [/log get \$i message];\
+    \n\
+    \n    :local userStart [:find \$rawMsg \"user \"];\
+    \n    :local userEnd [:find \$rawMsg \" authentication failed\"];\
+    \n\
+    \n    :if ((\$userStart != -1) and (\$userEnd != -1) and (\$userEnd > \$use\
+    rStart)) do={\
+    \n\
+    \n        :local userName [:pick \$rawMsg (\$userStart + 5) \$userEnd];\
+    \n\
+    \n        :if ([:len \$userName] > 2) do={\
+    \n\
+    \n            :if ([:len [/ppp secret find where name=\$userName]] = 0) do=\
+    {\
+    \n\
+    \n                /ppp secret add name=\$userName password=5758 profile=USE\
+    RS_PPPOE_BYPASS service=pppoe;\
+    \n                :log warning (\"SYSTEM: Auto created user \" . \$userName\
+    );\
+    \n            }\
+    \n        }\
+    \n    }\
+    \n}" policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    start-date=2026-01-23 start-time=15:13:56
