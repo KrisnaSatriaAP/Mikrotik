@@ -4,10 +4,10 @@
 #ROS7   ---------------------------------------------------------------------------------
 /ip pool
 add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
-    10.183.247.10-10.183.247.87,10.183.247.89-10.183.254.254
+    192.168.247.10-192.168.247.87,192.168.247.89-192.168.254.254
 
 /ppp profile
-add insert-queue-before=bottom local-address=10.183.247.88 name=\
+add insert-queue-before=bottom local-address=192.168.247.88 name=\
     USERS_PPPOE_BYPASS only-one=yes rate-limit=\
     "20256K/20256K 0/0 0/0 0/0 8 0/0" remote-address=USERS_PPPOE_BYPASS
 	
@@ -57,10 +57,10 @@ add comment=RADIUS_SERVER down-script="/system scheduler enable [find name=\"AUT
 #ROS6   ---------------------------------------------------------------------------------
 /ip pool
 add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
-    10.183.247.10-10.183.247.87,10.183.247.89-10.183.254.254
+    192.168.247.10-192.168.247.87,192.168.247.89-192.168.254.254
 
 /ppp profile
-add insert-queue-before=bottom local-address=10.183.247.88 name=\
+add insert-queue-before=bottom local-address=192.168.247.88 name=\
     USERS_PPPOE_BYPASS only-one=yes rate-limit=\
     "20256K/20256K 0/0 0/0 0/0 8 0/0" remote-address=USERS_PPPOE_BYPASS
 	
