@@ -1,59 +1,7 @@
 #jika radius server down dan ada log pppoe error authentication failed akan membuat secret dengan username sesuai user yg eror, password 5758, profile USERS_PPPOE_BYPASS, limit 20256K
 #jika radius up/down otomatis menjalankan scheduler ENABLE_JIKA_RADIUS_ERROR
+#cuma bisa di ROS 6 tidak bisa di ROS 7 karena tidak mengisinkan menjalankan perintah scrip di netwatch
 
-
-#ROS7   ---------------------------------------------------------------------------------
-/ip pool
-add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
-    192.168.247.10-192.168.247.87,192.168.247.89-192.168.254.254
-
-/ppp profile
-add insert-queue-before=bottom local-address=192.168.247.88 name=\
-    USERS_PPPOE_BYPASS only-one=yes rate-limit=\
-    "20256K/20256K 0/0 0/0 0/0 8 0/0" remote-address=USERS_PPPOE_BYPASS
-	
-/system scheduler
-add comment=ENABLE_JIKA_RADIUS_ERROR disabled=yes interval=10s name=\
-    AUTO_GENERATE_PPPOE_FAILED on-event=":foreach i in=[/log find where buffer=\
-    memory and topics~\"pppoe\" and topics~\"ppp\" and topics~\"error\" and mes\
-    sage~\"authentication failed\"] do={\
-    \n\
-    \n    :local rawMsg [/log get \$i message];\
-    \n\
-    \n    :local userStart [:find \$rawMsg \"user \"];\
-    \n    :local userEnd [:find \$rawMsg \" authentication failed\"];\
-    \n\
-    \n    :if ((\$userStart != -1) and (\$userEnd != -1) and (\$userEnd > \$use\
-    rStart)) do={\
-    \n\
-    \n        :local userName [:pick \$rawMsg (\$userStart + 5) \$userEnd];\
-    \n\
-    \n        :if ([:len \$userName] > 2) do={\
-    \n\
-    \n            :if ([:len [/ppp secret find where name=\$userName]] = 0) do=\
-    {\
-    \n\
-    \n                /ppp secret add name=\$userName password=5758 profile=USE\
-    RS_PPPOE_BYPASS service=pppoe;\
-    \n                :log warning (\"SYSTEM: Auto created user \" . \$userName\
-    );\
-    \n            }\
-    \n        }\
-    \n    }\
-    \n}" policy=\
-    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
-    start-date=2026-01-23 start-time=15:13:56
-
-/tool netwatch
-add comment=RADIUS_SERVER down-script="/system scheduler enable [find name=\"AUT\
-    O_GENERATE_PPPOE_FAILED\"]\r\
-    \n:delay 3s\r\
-    \n:log warning (\"SYSTEM: Auto enable scheduler AUTO_GENERATE_PPPOE_FAILED\"\
-    )" host=192.168.1.1 interval=1m3s up-script="/system scheduler disable [f\
-    ind name=\"AUTO_GENERATE_PPPOE_FAILED\"]\r\
-    \n:delay 3s\r\
-    \n:log warning (\"SYSTEM: Auto disable scheduler AUTO_GENERATE_PPPOE_FAILED\
-    \")"
 
 #ROS6   ---------------------------------------------------------------------------------
 /ip pool
