@@ -1,4 +1,5 @@
 #jika radius server down dan ada log pppoe error authentication failed akan membuat secret dengan username sesuai user yg eror, password 5758, profile USERS_PPPOE_BYPASS, limit 20256K
+#jika radius up/down otomatis menjalankan scheduler ENABLE_JIKA_RADIUS_ERROR
 
 
 #ROS7   ---------------------------------------------------------------------------------
