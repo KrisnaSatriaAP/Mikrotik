@@ -1,0 +1,62 @@
+Auto Generate PPPoE Authentication Failed Ketika Radius Down V3
+
+#jika radius server down dan ada log pppoe error authentication failed akan membuat secret dengan username sesuai user yg eror, password 5758, profile USERS_PPPOE_BYPASS, limit 20256K
+#jika radius up/down otomatis menjalankan scheduler ENABLE_JIKA_RADIUS_ERROR
+#jika radius up otomatis hapus secret dan pppoe yang di bypass
+#cuma bisa di ROS 6 tidak bisa di ROS 7 karena tidak mengisinkan menjalankan perintah scrip di netwatch
+
+
+#ROS6   ---------------------------------------------------------------------------------
+/ip pool
+add comment=247-254 name=USERS_PPPOE_BYPASS ranges=\
+    192.168.247.10-192.168.247.87,192.168.247.89-192.168.254.254
+
+/ppp profile
+add insert-queue-before=bottom local-address=192.168.247.88 name=\
+    USERS_PPPOE_BYPASS only-one=yes rate-limit=\
+    "20256K/20256K 0/0 0/0 0/0 8 0/0" remote-address=USERS_PPPOE_BYPASS
+	
+/system scheduler
+add comment=ENABLE_JIKA_RADIUS_ERROR disabled=yes interval=10s name=\
+    AUTO_GENERATE_PPPOE_FAILED on-event=":foreach i in=[/log find where buffer=m\
+    emory and topics~\"pppoe\" and topics~\"ppp\" and topics~\"error\" and messa\
+    ge~\"authentication failed\"] do={\r\
+    \n\r\
+    \n    :local rawMsg [/log get \$i message];\r\
+    \n\r\
+    \n    :local userStart [:find \$rawMsg \"user \"];\r\
+    \n    :local userEnd [:find \$rawMsg \" authentication failed\"];\r\
+    \n\r\
+    \n    :if ((\$userStart != -1) and (\$userEnd != -1) and (\$userEnd > \$user\
+    Start)) do={\r\
+    \n\r\
+    \n        :local userName [:pick \$rawMsg (\$userStart + 5) \$userEnd];\r\
+    \n\r\
+    \n        :if ([:len \$userName] > 2) do={\r\
+    \n\r\
+    \n            :if ([:len [/ppp secret find where name=\$userName]] = 0) do={\
+    \r\
+    \n\r\
+    \n                /ppp secret add name=\$userName password=5758 profile=USER\
+    S_PPPOE_BYPASS service=pppoe;\r\
+    \n                :log warning (\"SYSTEM: Auto created user \" . \$userName)\
+    ;\r\
+    \n            }\r\
+    \n        }\r\
+    \n    }\r\
+    \n}" policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    start-date=jan/23/2026 start-time=18:24:58
+
+	
+/tool netwatch
+add comment=RADIUS_SERVER disabled=yes down-script="/log warning \"Netwatch: Radius Server \$host is DOWN\"\r\
+    \n/log warning \"SYSTEM: Auto enable scheduler AUTO_GENERATE_PPPOE_FAILED\"\r\
+    \n/system scheduler enable [find name=\"AUTO_GENERATE_PPPOE_FAILED\"]" host=192.168.1.1 up-script="/log warning \"Netwatch: Radius Serv\
+    er \$host is UP\"\r\
+    \n/log warning \"SYSTEM: Auto disable scheduler AUTO_GENERATE_PPPOE_FAILED\"\r\
+    \n/system scheduler disable [find name=\"AUTO_GENERATE_PPPOE_FAILED\"]\r\
+    \n:delay 3s\r\
+    \n/ppp secret remove [find profile=\"USERS_PPPOE_BYPASS\"]\r\
+    \n:delay 20s\r\
+    \n/ppp active remove [find where radius=no && service=pppoe]"
